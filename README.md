@@ -57,7 +57,7 @@ The host must keep the page open and active. Closing or reloading the host ends 
 | `src/config.js` | Public networking configuration and optional TURN endpoint |
 | `tests/` | Rule, privacy, full-match, timeout, and networking-boundary tests |
 
-The service worker uses a versioned cache and network-first requests. Bump the `CACHE` version in `sw.js` when changing the cached asset list.
+The build fingerprints every JavaScript import and CSS entry point, and generates a matching service-worker cache version. The service worker uses network-first requests with cache validation, falling back to cached assets offline. This prevents a deploy from mixing old networking code with a new interface.
 
 ## Credits
 
