@@ -45,6 +45,12 @@ The host validates budgets, bids, phase numbers, and player identity before appl
 
 The host must keep the page open and active. Closing or reloading the host ends the room; host migration is not implemented. Guest disconnects switch that seat to bot bidding. A guest can reclaim the same seat by rejoining from the same browser tab, where its random reconnection token is kept in session storage. A missed timed bid becomes zero; an already locked bid is never replaced. Late new joins are allowed only in the lobby. Keep the room code private to invited friends.
 
+## Verification
+
+The initial release passed 16 automated tests, including complete 2-, 4-, and 10-player matches, bid privacy, budget validation, tie handling, timeouts, bot takeover, and connection identity checks. Live GitHub Pages browser checks covered a complete five-round solo match, item bonuses, scores, save/resume, rematch, room creation, and a 10-seat room with timed auctions.
+
+Remote guest joining timed out in the cloud test browser, including after enabling the bundled relay fallback. Successful human-to-human play across real devices has therefore **not yet been verified**. The deployed multiplayer feature remains experimental; a dedicated relay may be needed for your networks.
+
 ## Structure
 
 | File | Purpose |
