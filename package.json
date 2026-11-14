@@ -1,0 +1,14 @@
+{
+  "name": "going-going-boom",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bid. Build. Battle. A 2–10 player auction autobattler, with solo bots.",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.js",
+    "build": "node scripts/build.mjs",
+    "check": "node --check src/app.js && node --check src/engine.js && node --check src/network.js && node --check src/art.js && node --check src/battle.js"
+  },
+  "engines": { "node": ">=22" }
+}
