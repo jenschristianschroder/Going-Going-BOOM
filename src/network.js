@@ -11,8 +11,10 @@ async function loadPeer(){
 }
 async function options(){
   let iceServers=NETWORK.iceServers;
-  if(NETWORK.turnCredentialsUrl){const r=await fetch(NETWORK.turnCredentialsUrl,{signal:AbortSignal.timeout(10000)});if(!r.ok)throw new Error('The relay service is unavailable.');const data=await r.json();if(!Array.isArray(data.iceServers))throw new Error('Invalid relay configuration.');iceServers=[...iceServers,...data.iceServers];}
-  return {...NETWORK.peerOptions,debug:0,config:{iceServers}};
+  if(NETWORK.turnCredentialsUrl){const r=await fetch(NETWORK.turnCredentialsUrl,{signal:AbortSignal.timeout(10000)});if(!r.ok)throw new Error('The relay service is unavailable.');const data=await r.json();if(!Array.isArray(data.iceServers))throw new Error('Invalid relay configuration.');iceServers=[...(iceServers||[{urls:'stun:stun.l.google.com:19302'}]),...data.iceServers];}
+  const opts={...NETWORK.peerOptions,debug:0};
+  if(iceServers)opts.config={iceServers};
+  return opts;
 }
 export function friendlyError(e){
   if(e.type==='peer-unavailable')return 'Room not found. Check the code and ask the host to keep their tab open.';
@@ -38,7 +40,7 @@ export class HostRoom {
     if(this.closed)return c.close();
     const m=c.metadata||{};
     if(m.protocol!==PROTOCOL||typeof m.token!=='string'||m.token.length<16||m.token.length>100||this.pending.size>15){c.on('open',()=>{c.send({type:'rejected',message:'Invalid connection or room busy.'});setTimeout(()=>c.close(),100);});return;}
-    this.pending.add(c);const handshake=setTimeout(()=>{this.pending.delete(c);c.close();},12000);
+    this.pending.add(c);const handshake=setTimeout(()=>{this.pending.delete(c);c.close();},30000);
     let playerId=null;let windowStart=0;let messages=0;
     c.on('open',()=>{
       clearTimeout(handshake);this.pending.delete(c);
@@ -70,7 +72,7 @@ export class GuestRoom {
     this.peer=await openPeer(undefined);
     return new Promise((resolve,reject)=>{
       let settled=false;const fail=message=>{if(!settled){settled=true;clearTimeout(timeout);reject(new Error(message));}else if(!this.closed)this.onError(message);};
-      const timeout=setTimeout(()=>{fail('Could not reach the host. Keep both tabs open and try the same Wi-Fi. Some networks need a relay.');this.close();},20000);
+      const timeout=setTimeout(()=>{fail('Could not reach the host. Keep both tabs open and try the same Wi-Fi. The public relay may be unavailable on this network.');this.close();},30000);
       this.connection=this.peer.connect(`ggboom-v1-${code}`,{reliable:true,serialization:'json',metadata:{protocol:PROTOCOL,name,token}});
       this.peer.on('error',e=>fail(friendlyError(e)));
       this.connection.on('error',e=>fail(friendlyError(e)));

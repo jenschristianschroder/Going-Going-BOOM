@@ -3,6 +3,8 @@
 // endpoint returning { iceServers: [...] } with short-lived TURN credentials.
 export const NETWORK = {
   peerOptions: { host:'0.peerjs.com', port:443, secure:true, path:'/' },
-  iceServers: [{ urls:'stun:stun.l.google.com:19302' },{ urls:'stun:stun1.l.google.com:19302' }],
+  // null preserves the pinned PeerJS client's default STUN + public TURN relay.
+  // An explicit array replaces those defaults with your own ICE servers.
+  iceServers: null,
   turnCredentialsUrl: '',
 };

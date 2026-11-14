@@ -1,4 +1,4 @@
-const CACHE='ggboom-v1.0.0';
+const CACHE='ggboom-v1.0.1';
 const FILES=['./','./index.html','./styles.css','./manifest.webmanifest','./assets/icon.svg','./src/app.js','./src/engine.js','./src/art.js','./src/battle.js','./src/network.js','./src/config.js','./vendor/peerjs.min.js','./assets/fonts/barlow-condensed-600.ttf','./assets/fonts/barlow-condensed-700.ttf','./assets/fonts/barlow-condensed-800.ttf','./assets/fonts/barlow-condensed-900.ttf','./assets/fonts/dm-sans-400.ttf','./assets/fonts/dm-sans-500.ttf','./assets/fonts/dm-sans-600.ttf','./assets/fonts/dm-sans-700.ttf'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('ggboom-')&&k!==CACHE).map(k=>caches.delete(k))))));
