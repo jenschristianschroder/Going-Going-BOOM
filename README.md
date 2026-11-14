@@ -4,11 +4,12 @@
 
 ## Play
 
-- **Solo:** choose your name, bot count, and difficulty. No bidding timer. Matches save on the current device, so you can resume later.
-- **With friends:** create a room, share its six-character code or invite link, and add optional bots. The host starts and advances the match.
+- **Solo:** choose your name, bot count, difficulty, and auction duration with the timer slider. Matches save on the current device; leaving or closing the page saves the time remaining so you can resume later.
+- **With friends:** create a room, share its six-character code or invite link, and add optional bots. The host sets the auction timer with a slider in room setup or the lobby, then starts and advances the match. Guests see the chosen duration.
 - Start with **90 coins**. Each round has **two sealed-bid auctions**, followed by one automatic arena battle. Distribute your budget across the items; a zero bid passes. Highest bid wins and only the winner pays. Tied bids pick one winner randomly.
 - Every purchased item is permanently equipped. Two or four matching **Spark**, **Scrap**, or **Wild** pieces give attack, health, or critical-hit bonuses.
 - All players return for all **five rounds**. Each new round grants **55 coins**. Battle placement awards N points to first place, N−1 to second, and so on, with **2 extra points** for the winner. Highest total score wins; ties break by battle wins, then unspent coins (an exact remaining tie uses a stable player-ID order).
+- **Auction timer:** 10–120 seconds in 5-second steps (35 seconds by default), in both solo and online matches. The countdown warns at 10 seconds and closes bidding at zero. Unlocked bids become passes; locked bids are kept. Auctions reveal early when everyone has locked. The duration stays fixed for the match and carries into rematches.
 - Bots have three difficulty settings and varied budgets. They do not inspect human bids.
 
 ## GitHub Pages deployment

@@ -47,6 +47,45 @@ test('online timeout passes missing bids; early resolution is rejected',()=>{
   E.submitBid(g,'host',[1,0,0],g.sequence,2000);E.resolveAuction(g,{timeout:true,now:26000});
   assert.deepEqual(g.bids.guest,[0,0,0]);assert.equal(g.result[0].winner,'host');
 });
+test('auction duration follows slider limits and cannot change during a match',()=>{
+  for(const [seconds,expected] of [[undefined,35],[null,35],['',35],['bad',35],[Infinity,35],[-20,10],[0,10],[12,10],[13,15],['55',55],[999,120]]){
+    assert.equal(E.createGame({seconds}).settings.seconds,expected);
+  }
+  const g=E.createGame({bots:1});E.setAuctionSeconds(g,120);E.startGame(g,1000);
+  assert.equal(g.deadline,121000);
+  assert.throws(()=>E.setAuctionSeconds(g,10),/only be changed in the lobby/);
+  assert.equal(g.settings.seconds,120);
+});
+test('solo timeout passes unlocked human bids and preserves locked bot bids',()=>{
+  const g=E.createGame({bots:1,seconds:10});E.startGame(g,1000);E.fillBotBids(g);
+  const botBids=[...g.bids['bot-0']];
+  assert.equal(g.deadline,11000);
+  assert.throws(()=>E.resolveAuction(g,{timeout:true,now:10999}),/Waiting/);
+  E.resolveAuction(g,{timeout:true,now:11000});
+  assert.equal(g.phase,'reveal');assert.equal(g.deadline,null);
+  assert.deepEqual(g.bids.host,[0,0,0]);assert.deepEqual(g.bids['bot-0'],botBids);
+  assert.equal(g.players[0].coins,90);
+  assert.throws(()=>E.resolveAuction(g,{timeout:true,now:11001}),/no auction/);
+});
+test('bids just before the deadline are accepted; bids at or after zero are rejected',()=>{
+  const g=E.createGame({online:true,bots:0,seconds:10});E.addPlayer(g,{id:'guest',name:'Guest'});E.startGame(g,1000);
+  E.submitBid(g,'host',[1,0,0],g.sequence,10999);
+  for(const now of [11000,11001])assert.throws(()=>E.submitBid(g,'guest',[2,0,0],g.sequence,now),/ended/);
+  E.resolveAuction(g,{timeout:true,now:11000});assert.equal(g.result[0].winner,'host');
+});
+test('every auction gets the configured duration and all viewers share the deadline',()=>{
+  for(const online of [false,true]){
+    const g=E.createGame({online,bots:1,seconds:65});let now=1000;E.startGame(g,now);let auctions=0;
+    while(g.phase!=='gameOver'){
+      if(g.phase==='auction'){
+        auctions++;assert.equal(g.deadline,now+65000);
+        for(const p of g.players){const v=E.publicView(g,p.id);assert.equal(v.deadline,g.deadline);assert.equal(v.settings.seconds,65);}
+        now=g.deadline;E.fillBotBids(g);E.resolveAuction(g,{timeout:true,now});
+      }else{now+=5000;E.advance(g,now);}
+    }
+    assert.equal(auctions,10);
+  }
+});
 test('disconnected guests get bot bids, but locked human bids are preserved',()=>{
   const g=E.createGame({bots:0});E.addPlayer(g,{id:'guest',name:'Guest'});E.startGame(g);
   E.submitBid(g,'guest',[1,2,3]);E.removePlayer(g,'guest');E.fillBotBids(g);assert.deepEqual(g.bids.guest,[1,2,3]);

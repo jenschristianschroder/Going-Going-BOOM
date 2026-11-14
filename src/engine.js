@@ -3,6 +3,7 @@ export const VERSION = 1;
 export const MAX_PLAYERS = 10;
 export const ROUNDS = 5;
 export const WAVES = 2;
+export const AUCTION_TIME = {min:10,max:120,step:5,default:35};
 export const COLORS = ['#caff61','#ff876d','#8eafff','#e7a0ef','#62dac9','#ffd46d','#c6b8ff','#ed719b','#89c4a1','#e3ac73'];
 export const BOTS = ['Penny Pincher','Big Spender','Captain Chaos','Professor Boom','Lucky Charm','The Collector','Loose Change','Spark Plug','Last Bid'];
 export const FACTIONS = {
@@ -34,8 +35,17 @@ export const itemById = id => ITEMS.find(i => i.id === id);
 export function rng(seed) { let a=seed>>>0; return () => { a+=0x6D2B79F5; let t=a; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; }; }
 const clone = x => JSON.parse(JSON.stringify(x));
 export function safeName(s) { return String(s || 'Bidder').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,18) || 'Bidder'; }
-export function createGame({name='You',bots=3,difficulty='crafty',online=false,seed=Date.now(),seconds=35}={}) {
-  const g={version:VERSION,id:globalThis.crypto.randomUUID(),seed:seed>>>0,phase:'lobby',online,hostId:'host',round:0,wave:0,sequence:0,players:[],market:[],bids:{},result:null,battle:null,deadline:null,settings:{difficulty:['chill','crafty','ruthless'].includes(difficulty)?difficulty:'crafty',seconds:Math.min(90,Math.max(20,Number(seconds)||35))}};
+export function normalizeAuctionSeconds(value) {
+  const seconds=Number(value);
+  if(value==null||value===''||!Number.isFinite(seconds))return AUCTION_TIME.default;
+  return Math.min(AUCTION_TIME.max,Math.max(AUCTION_TIME.min,Math.round(seconds/AUCTION_TIME.step)*AUCTION_TIME.step));
+}
+export function setAuctionSeconds(g,seconds) {
+  if(g.phase!=='lobby')throw new Error('The auction timer can only be changed in the lobby.');
+  g.settings.seconds=normalizeAuctionSeconds(seconds);
+}
+export function createGame({name='You',bots=3,difficulty='crafty',online=false,seed=Date.now(),seconds=AUCTION_TIME.default}={}) {
+  const g={version:VERSION,id:globalThis.crypto.randomUUID(),seed:seed>>>0,phase:'lobby',online,hostId:'host',round:0,wave:0,sequence:0,players:[],market:[],bids:{},result:null,battle:null,deadline:null,settings:{difficulty:['chill','crafty','ruthless'].includes(difficulty)?difficulty:'crafty',seconds:normalizeAuctionSeconds(seconds)}};
   addPlayer(g,{id:'host',name,bot:false});
   setBotCount(g,Math.min(9,Math.max(0,Math.trunc(bots))));
   return g;
@@ -75,7 +85,7 @@ function openAuction(g,now) {
   for(let i=pool.length-1;i>0;i--) { const j=Math.floor(random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
   g.market=pool.slice(0,Math.max(3,Math.ceil(g.players.length/2))).map(i=>i.id);
   g.phase='auction';g.bids={};g.result=null;g.battle=null;g.sequence++;
-  g.deadline=g.online?now+g.settings.seconds*1000:null;
+  g.deadline=now+g.settings.seconds*1000;
 }
 export function startGame(g,now=Date.now()) {
   if(g.phase!=='lobby') throw new Error('The match has already started.');
@@ -84,7 +94,7 @@ export function startGame(g,now=Date.now()) {
 }
 export function submitBid(g,id,bids,sequence=g.sequence,now=Date.now()) {
   if(g.phase!=='auction'||sequence!==g.sequence) throw new Error('That auction has closed.');
-  if(g.deadline&&now>g.deadline) throw new Error('The bidding timer has ended.');
+  if(g.deadline&&now>=g.deadline) throw new Error('The bidding timer has ended.');
   const p=g.players.find(p=>p.id===id);if(!p) throw new Error('Player not found.');
   if(Object.hasOwn(g.bids,id)) throw new Error('Your bids are already locked.');
   if(!Array.isArray(bids)||bids.length!==g.market.length||bids.some(n=>!Number.isSafeInteger(n)||n<0)) throw new Error('Bids must be whole, positive coin amounts (or zero to pass).');
