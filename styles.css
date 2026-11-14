@@ -81,3 +81,18 @@
 .auction-clock.urgent .timer-track{background:#ecd0c2}
 @media(max-width:480px){.auction-status{gap:8px}.auction-clock{min-width:130px;gap:2px 7px;padding:6px 8px}#countdown{font-size:25px}#countdown-label{font-size:7px}}
 @media(prefers-reduced-motion:reduce){.timer-track i{transition:none}}
+
+/* The home-page QR panel uses a local image and stays available offline. */
+.home-qr-action{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-6px 0 20px}
+.home-qr-action .btn{min-height:42px;gap:8px}
+.home-qr-action>span{font-size:11px;color:#686c60}
+.game-qr-card{display:flex;flex-direction:column;align-items:center;gap:12px;margin:18px 0 22px}
+.game-qr{display:block;width:270px;max-width:100%;height:auto;aspect-ratio:1;background:#fff;border:1px solid var(--line)}
+.game-url{font:10px/1.6 monospace;text-align:center;overflow-wrap:anywhere;max-width:100%;text-underline-offset:3px;color:#52672e}
+.home-screen-tip{border-top:1px solid var(--line);padding-top:18px}
+.home-screen-tip h3{font:800 26px/1.1 var(--heading);margin:0 0 8px}
+.home-screen-tip p{font-size:12px;color:#626b54}
+.home-screen-tip dl{font-size:11px;line-height:1.6;margin:14px 0 0}
+.home-screen-tip dt{font-weight:700;margin-top:12px}
+.home-screen-tip dd{margin:3px 0 0;color:#626b54}
+@media(max-width:480px){.game-qr{width:225px}.home-qr-action{gap:9px}.home-qr-action>span{font-size:10px}}

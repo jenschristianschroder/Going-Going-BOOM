@@ -1,12 +1,12 @@
 import {cp,mkdir,rm,readFile,writeFile,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 await rm('dist',{recursive:true,force:true});await mkdir('dist');
-for(const name of ['index.html','styles.css','manifest.webmanifest','sw.js','src','assets','vendor'])await cp(name,`dist/${name}`,{recursive:true});
+for(const name of ['index.html','styles.css','manifest.webmanifest','favicon.ico','sw.js','src','assets','vendor'])await cp(name,`dist/${name}`,{recursive:true});
 // Version every module import as well as the entry points. GitHub Pages and
 // an old service worker must never mix a new UI with cached old game rules.
 const modules=(await readdir('src')).filter(name=>name.endsWith('.js')).sort();
 const hash=createHash('sha256');
-for(const name of ['index.html','styles.css','sw.js',...modules.map(n=>`src/${n}`)])hash.update(await readFile(name));
+for(const name of ['index.html','styles.css','sw.js','manifest.webmanifest','favicon.ico','assets/icon.svg','assets/game-qr.svg','assets/favicon-16.png','assets/favicon-32.png','assets/apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png',...modules.map(n=>`src/${n}`)])hash.update(await readFile(name));
 const release=hash.digest('hex').slice(0,12);
 for(const name of modules){const source=await readFile(`src/${name}`,'utf8');await writeFile(`dist/src/${name}`,source.replace(/(from\s*['"])(\.\.?\/[^'"]+\.js)(['"])/g,`$1$2?v=${release}$3`));}
 let html=await readFile('dist/index.html','utf8');

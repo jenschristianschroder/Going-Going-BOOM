@@ -12,6 +12,12 @@
 - **Auction timer:** 10–120 seconds in 5-second steps (35 seconds by default), in both solo and online matches. The countdown warns at 10 seconds and closes bidding at zero. Unlocked bids become passes; locked bids are kept. Auctions reveal early when everyone has locked. The duration stays fixed for the match and carries into rematches.
 - Bots have three difficulty settings and varied budgets. They do not inspect human bids.
 
+## QR code and Home Screen
+
+Choose **Open QR code** on the front page to share the public game URL and see **Add to Home Screen** instructions for iPhone/iPad and Android. The QR image is bundled locally and works offline after caching; it always opens the game home page, without a private room code. The panel also offers a copy-link button.
+
+The existing bomb logo is supplied as an SVG favicon, 16/32px PNG favicons, a multi-size `favicon.ico`, a 180px Apple touch icon, and 192/512px manifest icons. If the public game URL changes, update `GAME_URL` in `src/app.js` and regenerate `assets/game-qr.svg` together.
+
 ## GitHub Pages deployment
 
 The included `.github/workflows/pages.yml` validates the JavaScript, runs the tests, builds the static `dist/` folder, and deploys it after a push to `main`.
